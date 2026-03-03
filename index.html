@@ -362,7 +362,12 @@ function generateLink() {
   }
   
   const encodedName = encodeURIComponent(name);
-  const baseUrl = window.location.origin + window.location.pathname.replace('/index.html', '/' + occasion + '.html');
+  let baseUrl;
+  if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+    baseUrl = window.location.origin + '/' + occasion + '.html';
+  } else {
+    baseUrl = window.location.origin + window.location.pathname.replace('/index.html', '/' + occasion + '.html');
+  }
   const fullUrl = baseUrl + '?name=' + encodedName;
   
   const resultDiv = document.getElementById('result');
