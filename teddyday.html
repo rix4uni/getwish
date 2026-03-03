@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Happy Teddy Day 🧸</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(135deg, #d4a574, #c19a6b, #8b4513, #deb887);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: #5d3a1a;
+  text-shadow: 0 0 30px #deb887, 0 0 60px #d4a574;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #deb887, 0 0 60px #d4a574; }
+  50% { text-shadow: 0 0 50px #8b4513, 0 0 100px #ffffff, 0 0 150px #deb887; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Comic Sans MS", cursive;
+}
+
+#yes {
+  background: linear-gradient(135deg, #8b4513, #d4a574);
+  color: white;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(139,69,19,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Floating teddies */
+.teddy {
+  position: absolute;
+  font-size: 45px;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-25px) rotate(10deg); }
+}
+
+/* Hearts */
+.heart {
+  position: absolute;
+  font-size: 25px;
+  animation: heartFloat 5s linear forwards;
+}
+
+@keyframes heartFloat {
+  from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  to { transform: translateY(-10vh) scale(1); opacity: 0.9; }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+  color: white;
+  background: linear-gradient(135deg, #8b4513, #d4a574);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(139,69,19,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#teddyMsg {
+  display: none;
+  font-size: 3rem;
+  color: #5d3a1a;
+  text-shadow: 0 0 30px #deb887;
+}
+
+.big-teddy {
+  font-size: 120px;
+  margin: 20px;
+  animation: hug 1.5s ease-in-out infinite;
+}
+
+@keyframes hug {
+  0%, 100% { transform: scale(1) rotate(-5deg); }
+  50% { transform: scale(1.15) rotate(5deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">🧸 Happy Teddy Day <span id="name"></span>! 🤗</h1>
+
+<button id="yes" class="btn">Hug Teddy 🤗</button>
+<button id="no" class="btn">No 😒</button>
+
+<div id="teddyMsg">
+  <div class="big-teddy">🧸</div>
+  🤗 Big Teddy Hug for <span id="name2"></span>! 🤗
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("teddyMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Sweetheart';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = "Happy Teddy Day " + name + " 🧸";
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press HUG TEDDY 🧸", "Arey yaar 😂", "Stop chasing meee 😆", "Give a hug 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "No option disabled 😂", "Destiny says CUDDLES 🧸", "Bas karo 😂",
+  "You really trying huh 🤭", "Team TEDDY only 😌", "Dil se bolo YES 🤗",
+  "Arre arre arre 😆", "Cuddle only, no no 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape hugs 🧸",
+  "Say hug warna… 😜", "Smart person chooses LOVE 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click HUG, be happy 🧸"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("No cuddles? 🐻"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating teddies */
+const teddies = ['🧸', '🐻', '🤗', '🎀', '💖', '💝'];
+setInterval(() => {
+  const t = document.createElement('div');
+  t.className = 'teddy';
+  t.textContent = teddies[Math.floor(Math.random() * teddies.length)];
+  t.style.left = Math.random() * 100 + 'vw';
+  t.style.top = (10 + Math.random() * 60) + '%';
+  t.style.animationDuration = (3 + Math.random() * 3) + 's';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 8000);
+}, 600);
+
+/* Hearts */
+const hearts = ['❤️', '💖', '💕', '💗', '💝'];
+setInterval(() => {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.animationDuration = (4 + Math.random() * 2) + 's';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 6000);
+}, 400);
+
+function megaCelebration() {
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const t = document.createElement('div');
+      t.className = 'teddy';
+      t.textContent = teddies[Math.floor(Math.random() * teddies.length)];
+      t.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      t.style.top = '30%';
+      t.style.fontSize = (40 + Math.random() * 50) + 'px';
+      t.style.animationDuration = '4s';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }, i * 60);
+  }
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      h.style.top = '50%';
+      h.style.fontSize = (25 + Math.random() * 25) + 'px';
+      h.style.animationDuration = '4s';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4000);
+    }, i * 50);
+  }
+}
+</script>
+
+</body>
+</html>

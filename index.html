@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Wishes 🎉</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3, #ffd1dc);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  text-align: center;
+}
+.container {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  max-width: 400px;
+  width: 100%;
+}
+h1 {
+  color: #ff6b6b;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+
+/* Custom Dropdown Styles */
+.dropdown-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.dropdown-trigger {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #ff758c;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+.dropdown-trigger:hover {
+  border-color: #ff2e63;
+}
+.dropdown-trigger.active {
+  border-color: #ff2e63;
+  box-shadow: 0 0 10px rgba(255,46,99,0.3);
+}
+.dropdown-trigger .arrow {
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+.dropdown-trigger.active .arrow {
+  transform: rotate(180deg);
+}
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #ff758c;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.dropdown-menu.active {
+  display: block;
+}
+.dropdown-search {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+.dropdown-search input {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+}
+.dropdown-search input:focus {
+  border-color: #ff758c;
+}
+.dropdown-category {
+  padding: 8px 15px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #888;
+  background: #f8f8f8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-top: 1px solid #eee;
+}
+.dropdown-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f5f5f5;
+}
+.dropdown-item:hover {
+  background: #fff5f7;
+}
+.dropdown-item.selected {
+  background: #ffe0e6;
+  color: #ff2e63;
+}
+.dropdown-item .emoji {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+.dropdown-item .text {
+  font-size: 15px;
+}
+.dropdown-item.hidden {
+  display: none;
+}
+
+input[type="text"]#nameInput {
+  padding: 15px 20px;
+  font-size: 16px;
+  border: 2px solid #ff758c;
+  border-radius: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+  outline: none;
+}
+input[type="text"]#nameInput:focus {
+  border-color: #ff2e63;
+}
+button {
+  padding: 15px 40px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background: #ff2e63;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+}
+button:hover {
+  background: #e61e52;
+  transform: scale(1.02);
+}
+#result {
+  margin-top: 20px;
+  display: none;
+  word-break: break-all;
+}
+#result p {
+  color: #666;
+  margin-bottom: 10px;
+}
+#result a {
+  color: #ff2e63;
+  text-decoration: none;
+  font-weight: bold;
+  word-break: break-all;
+}
+#result a:hover {
+  text-decoration: underline;
+}
+
+/* Category colors */
+.cat-valentine { border-left: 4px solid #ff2e63; }
+.cat-festivals { border-left: 4px solid #ffa500; }
+.cat-family { border-left: 4px solid #4caf50; }
+.cat-national { border-left: 4px solid #2196f3; }
+.cat-life { border-left: 4px solid #9c27b0; }
+.cat-daily { border-left: 4px solid #00bcd4; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎉 Create a Wish 🎉</h1>
+  
+  <div class="dropdown-container">
+    <div class="dropdown-trigger" id="dropdownTrigger">
+      <span id="selectedText">💕 Valentine</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="dropdown-menu" id="dropdownMenu">
+      <div class="dropdown-search">
+        <input type="text" id="searchInput" placeholder="Search occasions...">
+      </div>
+      
+      <div class="dropdown-category">💕 Valentine Week</div>
+      <div class="dropdown-item cat-valentine" data-value="valentine"><span class="emoji">💕</span><span class="text">Valentine</span></div>
+      <div class="dropdown-item cat-valentine" data-value="promiseday"><span class="emoji">💍</span><span class="text">Promise Day</span></div>
+      <div class="dropdown-item cat-valentine" data-value="teddyday"><span class="emoji">🧸</span><span class="text">Teddy Day</span></div>
+      <div class="dropdown-item cat-valentine" data-value="proposeday"><span class="emoji">💍</span><span class="text">Propose Day</span></div>
+      
+      <div class="dropdown-category">🎉 Festivals</div>
+      <div class="dropdown-item cat-festivals" data-value="birthday"><span class="emoji">🎂</span><span class="text">Birthday</span></div>
+      <div class="dropdown-item cat-festivals" data-value="anniversary"><span class="emoji">💍</span><span class="text">Anniversary</span></div>
+      <div class="dropdown-item cat-festivals" data-value="holi"><span class="emoji">🌈</span><span class="text">Holi</span></div>
+      <div class="dropdown-item cat-festivals" data-value="diwali"><span class="emoji">🪔</span><span class="text">Diwali</span></div>
+      <div class="dropdown-item cat-festivals" data-value="christmas"><span class="emoji">🎄</span><span class="text">Christmas</span></div>
+      <div class="dropdown-item cat-festivals" data-value="newyear"><span class="emoji">🎊</span><span class="text">New Year</span></div>
+      <div class="dropdown-item cat-festivals" data-value="eid"><span class="emoji">🌙</span><span class="text">Eid</span></div>
+      <div class="dropdown-item cat-festivals" data-value="rakhi"><span class="emoji">🪢</span><span class="text">Rakhi</span></div>
+      <div class="dropdown-item cat-festivals" data-value="dussehra"><span class="emoji">🏹</span><span class="text">Dussehra</span></div>
+      <div class="dropdown-item cat-festivals" data-value="pongal"><span class="emoji">🌾</span><span class="text">Pongal</span></div>
+      
+      <div class="dropdown-category">👨‍👩‍👧 Family & Friends</div>
+      <div class="dropdown-item cat-family" data-value="friendship"><span class="emoji">👫</span><span class="text">Friendship Day</span></div>
+      <div class="dropdown-item cat-family" data-value="fathersday"><span class="emoji">👨‍👧‍👦</span><span class="text">Father's Day</span></div>
+      <div class="dropdown-item cat-family" data-value="mothersday"><span class="emoji">👩‍👧‍👦</span><span class="text">Mother's Day</span></div>
+      <div class="dropdown-item cat-family" data-value="childrensday"><span class="emoji">🎈</span><span class="text">Children's Day</span></div>
+      
+      <div class="dropdown-category">🇮🇳 National & Education</div>
+      <div class="dropdown-item cat-national" data-value="teachersday"><span class="emoji">👨‍🏫</span><span class="text">Teachers' Day</span></div>
+      <div class="dropdown-item cat-national" data-value="republicday"><span class="emoji">🇮🇳</span><span class="text">Republic Day</span></div>
+      <div class="dropdown-item cat-national" data-value="independenceday"><span class="emoji">🇮🇳</span><span class="text">Independence Day</span></div>
+      
+      <div class="dropdown-category">✨ Life Events</div>
+      <div class="dropdown-item cat-life" data-value="newbeginnings"><span class="emoji">✨</span><span class="text">New Beginnings</span></div>
+      <div class="dropdown-item cat-life" data-value="newjob"><span class="emoji">🎉</span><span class="text">New Job</span></div>
+      <div class="dropdown-item cat-life" data-value="newhome"><span class="emoji">🏠</span><span class="text">Housewarming</span></div>
+      <div class="dropdown-item cat-life" data-value="retirement"><span class="emoji">🌴</span><span class="text">Retirement</span></div>
+      <div class="dropdown-item cat-life" data-value="getwellsoon"><span class="emoji">💐</span><span class="text">Get Well Soon</span></div>
+      
+      <div class="dropdown-category">☀️ Daily Wishes</div>
+      <div class="dropdown-item cat-daily" data-value="goodmorning"><span class="emoji">☀️</span><span class="text">Good Morning</span></div>
+      <div class="dropdown-item cat-daily" data-value="womensday"><span class="emoji">👑</span><span class="text">Women's Day</span></div>
+    </div>
+    <input type="hidden" id="occasionSelect" value="valentine">
+  </div>
+  
+  <input type="text" id="nameInput" placeholder="Enter their name" />
+  <br>
+  <button onclick="generateLink()">Generate Link</button>
+  
+  <div id="result">
+    <p>Your link is ready!</p>
+    <a id="link" href="" target="_blank">Open Wish Page</a>
+  </div>
+</div>
+
+<script>
+// Custom Dropdown Functionality
+const dropdownTrigger = document.getElementById('dropdownTrigger');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const searchInput = document.getElementById('searchInput');
+const dropdownItems = document.querySelectorAll('.dropdown-item');
+const selectedText = document.getElementById('selectedText');
+const occasionSelect = document.getElementById('occasionSelect');
+let isOpen = false;
+
+// Toggle dropdown
+dropdownTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  isOpen = !isOpen;
+  dropdownMenu.classList.toggle('active', isOpen);
+  dropdownTrigger.classList.toggle('active', isOpen);
+  if (isOpen) {
+    searchInput.value = '';
+    searchInput.focus();
+    filterItems('');
+  }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdownTrigger.contains(e.target) && !dropdownMenu.contains(e.target)) {
+    isOpen = false;
+    dropdownMenu.classList.remove('active');
+    dropdownTrigger.classList.remove('active');
+  }
+});
+
+// Select item
+dropdownItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const value = item.getAttribute('data-value');
+    const text = item.querySelector('.text').textContent;
+    const emoji = item.querySelector('.emoji').textContent;
+    
+    selectedText.textContent = emoji + ' ' + text;
+    occasionSelect.value = value;
+    
+    // Update selected state
+    dropdownItems.forEach(i => i.classList.remove('selected'));
+    item.classList.add('selected');
+    
+    // Close dropdown
+    isOpen = false;
+    dropdownMenu.classList.remove('active');
+    dropdownTrigger.classList.remove('active');
+  });
+});
+
+// Search functionality
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  filterItems(query);
+});
+
+searchInput.addEventListener('click', (e) => {
+  e.stopPropagation();
+});
+
+function filterItems(query) {
+  dropdownItems.forEach(item => {
+    const text = item.querySelector('.text').textContent.toLowerCase();
+    if (text.includes(query)) {
+      item.classList.remove('hidden');
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+  
+  // Hide empty categories
+  const categories = document.querySelectorAll('.dropdown-category');
+  categories.forEach(cat => {
+    let hasVisibleItems = false;
+    let nextElement = cat.nextElementSibling;
+    while (nextElement && nextElement.classList.contains('dropdown-item')) {
+      if (!nextElement.classList.contains('hidden')) {
+        hasVisibleItems = true;
+        break;
+      }
+      nextElement = nextElement.nextElementSibling;
+    }
+    cat.style.display = hasVisibleItems ? 'block' : 'none';
+  });
+}
+
+// Generate link function
+function generateLink() {
+  const name = document.getElementById('nameInput').value.trim();
+  const occasion = document.getElementById('occasionSelect').value;
+  if (!name) {
+    alert('Please enter a name!');
+    return;
+  }
+  
+  const encodedName = encodeURIComponent(name);
+  const baseUrl = window.location.origin + window.location.pathname.replace('/index.html', '/' + occasion + '.html');
+  const fullUrl = baseUrl + '?name=' + encodedName;
+  
+  const resultDiv = document.getElementById('result');
+  const link = document.getElementById('link');
+  
+  link.href = fullUrl;
+  link.textContent = fullUrl;
+  resultDiv.style.display = 'block';
+}
+
+// Allow Enter key to submit
+document.getElementById('nameInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    generateLink();
+  }
+});
+
+// Keyboard navigation for dropdown
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    isOpen = false;
+    dropdownMenu.classList.remove('active');
+    dropdownTrigger.classList.remove('active');
+  }
+});
+</script>
+
+</body>
+</html>

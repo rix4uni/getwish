@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Happy Mother's Day 👩‍👧‍👦</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Georgia", serif;
+  background: linear-gradient(135deg, #ff69b4, #ffb6c1, #ffc0cb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 0 30px #ff1493, 0 0 60px #ff69b4;
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #ff1493, 0 0 60px #ff69b4; }
+  50% { text-shadow: 0 0 50px #ff1493, 0 0 100px #ffffff, 0 0 150px #ff69b4; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Georgia", serif;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ff1493, #ff69b4);
+  color: white;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,20,147,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Floating flowers */
+.flower {
+  position: absolute;
+  font-size: 40px;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+/* Hearts floating */
+.heart {
+  position: absolute;
+  font-size: 25px;
+  animation: heartFloat 5s linear forwards;
+}
+
+@keyframes heartFloat {
+  from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  to { transform: translateY(-10vh) scale(1); opacity: 0.9; }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Georgia", serif;
+  color: white;
+  background: linear-gradient(135deg, #ff1493, #ff69b4);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,20,147,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#momMsg {
+  display: none;
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 0 30px #ff1493;
+}
+
+.flower-main {
+  font-size: 100px;
+  margin: 20px;
+  animation: bloom 2s ease-in-out infinite;
+}
+
+@keyframes bloom {
+  0%, 100% { transform: scale(1) rotate(-5deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">👩‍👧‍👦 Happy Mother's Day <span id="name"></span>! 💗</h1>
+
+<button id="yes" class="btn">Love You Mom 💗</button>
+<button id="no" class="btn">Nah 😒</button>
+
+<div id="momMsg">
+  <div class="flower-main">🌷</div>
+  💗 Best Mom Ever <span id="name2"></span>! 💗
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("momMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Mom';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = "Happy Mother's Day " + name + " 👩‍👧‍👦";
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press LOVE MOM 💗", "Arey yaar 😂", "Stop chasing meee 😆", "Love your mom 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "Nah option disabled 😂", "Destiny says LOVE 👩‍👧‍👦", "Bas karo 😂",
+  "You really trying huh 🤭", "Team MOM only 😌", "Dil se bolo YES 💗",
+  "Arre arre arre 😆", "Love only, no nah 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape love 👩‍👧‍👦",
+  "Say love warna… 😜", "Smart person chooses MOM 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click LOVE, be happy 💗"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("Don't love mom? 😢"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating flowers */
+const flowers = ['🌷', '🌹', '🌸', '🌺', '🌻', '🌼', '💐'];
+setInterval(() => {
+  const f = document.createElement('div');
+  f.className = 'flower';
+  f.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+  f.style.left = Math.random() * 100 + 'vw';
+  f.style.top = (10 + Math.random() * 60) + '%';
+  f.style.animationDuration = (4 + Math.random() * 3) + 's';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 9000);
+}, 600);
+
+/* Floating hearts */
+const hearts = ['💗', '💖', '💕', '❤️', '💝'];
+setInterval(() => {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.animationDuration = (4 + Math.random() * 2) + 's';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 6000);
+}, 400);
+
+function megaCelebration() {
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const f = document.createElement('div');
+      f.className = 'flower';
+      f.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+      f.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      f.style.top = '30%';
+      f.style.fontSize = (30 + Math.random() * 40) + 'px';
+      f.style.animationDuration = '4s';
+      document.body.appendChild(f);
+      setTimeout(() => f.remove(), 4000);
+    }, i * 60);
+  }
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      h.style.top = '50%';
+      h.style.fontSize = (25 + Math.random() * 25) + 'px';
+      h.style.animationDuration = '4s';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4000);
+    }, i * 50);
+  }
+}
+</script>
+
+</body>
+</html>

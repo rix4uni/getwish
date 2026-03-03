@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Happy Retirement 🌴</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Georgia", serif;
+  background: linear-gradient(135deg, #f5af19, #f12711, #f5af19, #f12711);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 0 30px #f5af19, 0 0 60px #f12711;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #f5af19, 0 0 60px #f12711; }
+  50% { text-shadow: 0 0 50px #ffffff, 0 0 100px #f5af19, 0 0 150px #f12711; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Georgia", serif;
+}
+
+#yes {
+  background: linear-gradient(135deg, #f5af19, #f12711);
+  color: white;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(245,175,25,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Floating retirement items */
+.retirement {
+  position: absolute;
+  font-size: 35px;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-25px) rotate(10deg); }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Georgia", serif;
+  color: white;
+  background: linear-gradient(135deg, #f5af19, #f12711);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(245,175,25,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#retirementMsg {
+  display: none;
+  font-size: 2.2rem;
+  color: white;
+  text-shadow: 0 0 30px #f5af19;
+  max-width: 85%;
+}
+
+.palm {
+  font-size: 100px;
+  margin: 20px;
+  animation: sway 2s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">🌴 Happy Retirement <span id="name"></span>! 🥂</h1>
+
+<button id="yes" class="btn">Cheers 🥂</button>
+<button id="no" class="btn">No 😒</button>
+
+<div id="retirementMsg">
+  <div class="palm">🌴</div>
+  🥂 Cheers to a lifetime of hard work and the beginning of a lifetime of relaxation <span id="name2"></span>. May your retirement be your most rewarding adventure yet! 🌴
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("retirementMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Champion';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = "Happy Retirement " + name + " 🌴";
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press CHEERS 🥂", "Arey yaar 😂", "Stop chasing meee 😆", "Enjoy freedom 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "No option disabled 😂", "Destiny says RELAX 🌴", "Bas karo 😂",
+  "You really trying huh 🤭", "Team FREEDOM only 😌", "Dil se bolo YES 🥂",
+  "Arre arre arre 😆", "Relax only, no no 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape rest 🌴",
+  "Say cheers warna… 😜", "Smart person chooses CHILL 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click CHEERS, be happy 🥂"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("No rest? 😓"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating retirement items */
+const retirements = ['🌴', '🥂', '🏖️', '✈️', '🌅', '📖', '🎣', '🏌️', '🍹'];
+setInterval(() => {
+  const r = document.createElement('div');
+  r.className = 'retirement';
+  r.textContent = retirements[Math.floor(Math.random() * retirements.length)];
+  r.style.left = Math.random() * 100 + 'vw';
+  r.style.top = (10 + Math.random() * 60) + '%';
+  r.style.animationDuration = (3 + Math.random() * 3) + 's';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 8000);
+}, 600);
+
+function megaCelebration() {
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const r = document.createElement('div');
+      r.className = 'retirement';
+      r.textContent = retirements[Math.floor(Math.random() * retirements.length)];
+      r.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      r.style.top = '30%';
+      r.style.fontSize = (40 + Math.random() * 40) + 'px';
+      r.style.animationDuration = '4s';
+      document.body.appendChild(r);
+      setTimeout(() => r.remove(), 4000);
+    }, i * 60);
+  }
+}
+</script>
+
+</body>
+</html>

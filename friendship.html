@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Happy Friendship Day 👫</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+  background-size: 400% 400%;
+  animation: rainbow 8s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: white;
+  text-shadow: 0 0 30px rgba(0,0,0,0.5), 0 0 60px rgba(255,255,255,0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Comic Sans MS", cursive;
+}
+
+#yes {
+  background: white;
+  color: #ff6b6b;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,255,255,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Floating friends */
+.friend {
+  position: absolute;
+  font-size: 40px;
+  animation: bounce 3s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Hearts */
+.heart {
+  position: absolute;
+  font-size: 25px;
+  animation: float 5s linear forwards;
+}
+
+@keyframes float {
+  from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+  to { transform: translateY(-10vh) scale(1); opacity: 0.9; }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+  color: #ff6b6b;
+  background: white;
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#friendMsg {
+  display: none;
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+.hands {
+  font-size: 100px;
+  margin: 20px;
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">👫 Happy Friendship Day <span id="name"></span>! 🤝</h1>
+
+<button id="yes" class="btn">BFF Forever 👫</button>
+<button id="no" class="btn">Nope 😒</button>
+
+<div id="friendMsg">
+  <div class="hands">🤝</div>
+  💕 Best Friends Forever <span id="name2"></span>! 💕
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("friendMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Friend';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = 'Happy Friendship Day ' + name + ' 👫';
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press BFF 👫", "Arey yaar 😂", "Stop chasing meee 😆", "Be my BFF 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "Nope option disabled 😂", "Destiny says FRIENDS 👫", "Bas karo 😂",
+  "You really trying huh 🤭", "Team FRIENDSHIP only 😌", "Dil se bolo YES 🤝",
+  "Arre arre arre 😆", "Friendship only, no nope 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape friendship 👫",
+  "Say BFF warna… 😜", "Smart person chooses FRIENDSHIP 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click BFF, be happy 👫"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("No friends? 😢"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating friends */
+const friends = ['👫', '👭', '👬', '🤝', '🫂', '🎭', '🎪'];
+setInterval(() => {
+  const f = document.createElement('div');
+  f.className = 'friend';
+  f.textContent = friends[Math.floor(Math.random() * friends.length)];
+  f.style.left = Math.random() * 100 + 'vw';
+  f.style.top = (10 + Math.random() * 60) + '%';
+  f.style.animationDuration = (3 + Math.random() * 2) + 's';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 6000);
+}, 700);
+
+/* Hearts */
+const hearts = ['❤️', '💖', '💕', '💗', '💝', '💘'];
+setInterval(() => {
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.animationDuration = (4 + Math.random() * 2) + 's';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 6000);
+}, 400);
+
+function megaCelebration() {
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const f = document.createElement('div');
+      f.className = 'friend';
+      f.textContent = friends[Math.floor(Math.random() * friends.length)];
+      f.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      f.style.top = '30%';
+      f.style.fontSize = (40 + Math.random() * 40) + 'px';
+      f.style.animationDuration = '3s';
+      document.body.appendChild(f);
+      setTimeout(() => f.remove(), 3000);
+    }, i * 75);
+  }
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      h.style.top = '50%';
+      h.style.fontSize = (30 + Math.random() * 20) + 'px';
+      h.style.animationDuration = '4s';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4000);
+    }, i * 50);
+  }
+}
+</script>
+
+</body>
+</html>

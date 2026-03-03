@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Merry Christmas 🎄</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(180deg, #0f4c3a, #1a5f4b, #2d6a4f);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: white;
+  text-shadow: 0 0 30px #ff0000, 0 0 60px #00ff00;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #ff0000, 0 0 60px #00ff00; }
+  50% { text-shadow: 0 0 50px #ff0000, 0 0 100px #00ff00, 0 0 150px #ffffff; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Comic Sans MS", cursive;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  color: white;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,0,0,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Snowflakes */
+.snowflake {
+  position: absolute;
+  font-size: 20px;
+  animation: fall 10s linear forwards;
+  opacity: 0.9;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+  color: #0f4c3a;
+  background: linear-gradient(135deg, #ffffff, #ff0000);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#xmasMsg {
+  display: none;
+  font-size: 3rem;
+  color: white;
+  text-shadow: 0 0 30px #ff0000;
+}
+
+.tree {
+  font-size: 100px;
+  margin: 20px;
+  animation: sway 2s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.star {
+  position: absolute;
+  font-size: 20px;
+  animation: twinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">🎄 Merry Christmas <span id="name"></span>! 🎅</h1>
+
+<button id="yes" class="btn">Celebrate 🎅</button>
+<button id="no" class="btn">Skip 😤</button>
+
+<div id="xmasMsg">
+  <div class="tree">🎄</div>
+  🎁 Ho Ho Ho <span id="name2"></span>! 🎁
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("xmasMsg");
+const mainText = document.getElementById("mainText");
+
+// Get name from URL
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Friend';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = 'Merry Christmas ' + name + ' 🎄';
+
+let attempts = 0;
+let popupLock = false;
+let escapeCooldown = false;
+
+/* Funny Christmas lines */
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press CELEBRATE 🎅", "Arey yaar 😂", "Stop chasing meee 😆", "Celebrate naaa 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "Skip option disabled 😂", "Destiny says CHRISTMAS 🎄", "Bas karo 😂",
+  "You really trying huh 🤭", "Team SANTA only 😌", "Dil se bolo YES 🎁",
+  "Arre arre arre 😆", "Christmas only, no skip 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape Xmas 🎄",
+  "Say celebrate warna… 😜", "Smart person chooses SANTA 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click CELEBRATE, be happy 🎅"
+];
+
+/* YES CLICK */
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+/* Chase detection */
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("No Christmas spirit? 🎄"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Snowflakes */
+const snowEmojis = ['❄️', '🌨️', '❅', '❆', '☃️'];
+setInterval(() => {
+  const s = document.createElement('div');
+  s.className = 'snowflake';
+  s.textContent = snowEmojis[Math.floor(Math.random() * snowEmojis.length)];
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.animationDuration = (8 + Math.random() * 4) + 's';
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 12000);
+}, 400);
+
+/* Stars */
+for (let i = 0; i < 30; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.textContent = '⭐';
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.top = Math.random() * 100 + 'vh';
+  s.style.animationDelay = Math.random() * 2 + 's';
+  document.body.appendChild(s);
+}
+
+/* Mega celebration */
+function megaCelebration() {
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => {
+      const s = document.createElement('div');
+      s.className = 'snowflake';
+      s.textContent = snowEmojis[Math.floor(Math.random() * snowEmojis.length)];
+      s.style.left = 50 + (Math.random() - 0.5) * 50 + 'vw';
+      s.style.top = '0';
+      s.style.animationDuration = '5s';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 5000);
+    }, i * 30);
+  }
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.textContent = '✨';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.animationDelay = Math.random() * 2 + 's';
+    document.body.appendChild(s);
+  }
+}
+</script>
+
+</body>
+</html>

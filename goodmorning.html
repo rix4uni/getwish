@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Good Morning ☀️</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(180deg, #ff9a56, #ffad60, #ffdfba, #87ceeb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: #fff8e7;
+  text-shadow: 0 0 30px #ff9a56, 0 0 60px #ffad60;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #ff9a56, 0 0 60px #ffad60; }
+  50% { text-shadow: 0 0 50px #fff8e7, 0 0 100px #ff9a56, 0 0 150px #ffad60; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Comic Sans MS", cursive;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ff9a56, #ffad60);
+  color: white;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,154,86,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Sun */
+.sun {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  font-size: 80px;
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Floating morning items */
+.morning {
+  position: absolute;
+  font-size: 35px;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50% { transform: translateY(-25px) rotate(10deg); }
+}
+
+/* Clouds */
+.cloud {
+  position: absolute;
+  font-size: 50px;
+  animation: drift 15s linear infinite;
+}
+
+@keyframes drift {
+  from { transform: translateX(-10vw); }
+  to { transform: translateX(110vw); }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+  color: white;
+  background: linear-gradient(135deg, #ff9a56, #ffad60);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,154,86,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#morningMsg {
+  display: none;
+  font-size: 3rem;
+  color: #fff8e7;
+  text-shadow: 0 0 30px #ff9a56;
+}
+
+.sunshine {
+  font-size: 100px;
+  margin: 20px;
+  animation: shine 1.5s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% { transform: scale(1) rotate(-10deg); }
+  50% { transform: scale(1.1) rotate(10deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sun">☀️</div>
+
+<h1 id="mainText">☀️ Good Morning <span id="name"></span>! 🌅</h1>
+
+<button id="yes" class="btn">Good Morning ☀️</button>
+<button id="no" class="btn">No 😒</button>
+
+<div id="morningMsg">
+  <div class="sunshine">☀️</div>
+  ☀️ Have a Great Day <span id="name2"></span>! ☀️
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("morningMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Friend';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = "Good Morning " + name + " ☀️";
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press GOOD MORNING ☀️", "Arey yaar 😂", "Stop chasing meee 😆", "Wake up happy 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "No option disabled 😂", "Destiny says SUNSHINE ☀️", "Bas karo 😂",
+  "You really trying huh 🤭", "Team MORNING only 😌", "Dil se bolo YES ☀️",
+  "Arre arre arre 😆", "Sunshine only, no no 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape morning ☀️",
+  "Say morning warna… 😜", "Smart person chooses SUNSHINE 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click MORNING, be happy ☀️"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("Still sleepy? 😴"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating morning items */
+const mornings = ['☕', '🥐', '🌻', '🐦', '🌅', '🌄', '✨'];
+setInterval(() => {
+  const m = document.createElement('div');
+  m.className = 'morning';
+  m.textContent = mornings[Math.floor(Math.random() * mornings.length)];
+  m.style.left = Math.random() * 100 + 'vw';
+  m.style.top = (10 + Math.random() * 60) + '%';
+  m.style.animationDuration = (3 + Math.random() * 3) + 's';
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), 8000);
+}, 600);
+
+/* Clouds */
+setInterval(() => {
+  const c = document.createElement('div');
+  c.className = 'cloud';
+  c.textContent = '☁️';
+  c.style.top = (5 + Math.random() * 30) + '%';
+  c.style.animationDuration = (12 + Math.random() * 8) + 's';
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 20000);
+}, 3000);
+
+function megaCelebration() {
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const m = document.createElement('div');
+      m.className = 'morning';
+      m.textContent = mornings[Math.floor(Math.random() * mornings.length)];
+      m.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      m.style.top = '30%';
+      m.style.fontSize = (40 + Math.random() * 40) + 'px';
+      m.style.animationDuration = '4s';
+      document.body.appendChild(m);
+      setTimeout(() => m.remove(), 4000);
+    }, i * 60);
+  }
+}
+</script>
+
+</body>
+</html>

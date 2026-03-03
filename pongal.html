@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Happy Pongal 🌾</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Comic Sans MS", cursive;
+  background: linear-gradient(180deg, #87ceeb, #ffd700, #ffa500);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: #8b4513;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px #ffaa00;
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #ffd700, 0 0 60px #ffaa00; }
+  50% { text-shadow: 0 0 50px #ffd700, 0 0 100px #87ceeb, 0 0 150px #ffd700; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Comic Sans MS", cursive;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #8b4513;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,215,0,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Floating crops */
+.crop {
+  position: absolute;
+  font-size: 35px;
+  animation: sway 4s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(10deg) translateY(-10px); }
+}
+
+/* Sun rays */
+.sun {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  font-size: 80px;
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Comic Sans MS", cursive;
+  color: #8b4513;
+  background: linear-gradient(135deg, #ffd700, #87ceeb);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,215,0,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#pongalMsg {
+  display: none;
+  font-size: 3rem;
+  color: #8b4513;
+  text-shadow: 0 0 30px #ffd700;
+}
+
+.pot {
+  font-size: 100px;
+  margin: 20px;
+  animation: boil 1s ease-in-out infinite;
+}
+
+@keyframes boil {
+  0%, 100% { transform: scale(1) rotate(-3deg); }
+  50% { transform: scale(1.05) rotate(3deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">🌾 Happy Pongal <span id="name"></span>! ☀️</h1>
+
+<button id="yes" class="btn">Harvest 🌾</button>
+<button id="no" class="btn">Nah 😒</button>
+
+<div id="pongalMsg">
+  <div class="pot">🥘</div>
+  🌽 Prosperity to <span id="name2"></span>! 🌽
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("pongalMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Friend';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = 'Happy Pongal ' + name + ' 🌾';
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press HARVEST 🌾", "Arey yaar 😂", "Stop chasing meee 😆", "Celebrate harvest 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "Nah option disabled 😂", "Destiny says PONGAL 🌾", "Bas karo 😂",
+  "You really trying huh 🤭", "Team HARVEST only 😌", "Dil se bolo YES 🌽",
+  "Arre arre arre 😆", "Harvest only, no nah 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape harvest 🌾",
+  "Say harvest warna… 😜", "Smart person chooses PONGAL 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click HARVEST, be happy 🌾"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("No harvest joy? 🌽"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating crops */
+const crops = ['🌾', '🌽', '🌻', '🌸', '🌺'];
+setInterval(() => {
+  const c = document.createElement('div');
+  c.className = 'crop';
+  c.textContent = crops[Math.floor(Math.random() * crops.length)];
+  c.style.left = Math.random() * 100 + 'vw';
+  c.style.bottom = (10 + Math.random() * 20) + '%';
+  c.style.animationDuration = (3 + Math.random() * 2) + 's';
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 6000);
+}, 800);
+
+/* Sun */
+const sun = document.createElement('div');
+sun.className = 'sun';
+sun.textContent = '☀️';
+document.body.appendChild(sun);
+
+function megaCelebration() {
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'crop';
+      c.textContent = crops[Math.floor(Math.random() * crops.length)];
+      c.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      c.style.top = '50%';
+      c.style.fontSize = (40 + Math.random() * 40) + 'px';
+      c.style.animationDuration = '3s';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3000);
+    }, i * 60);
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Eid Mubarak 🌙</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+  font-family: "Georgia", serif;
+  background: linear-gradient(180deg, #0f3d0f, #1a5c1a, #2d7a2d);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3.5rem;
+  color: #ffd700;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px #ffaa00;
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 30px #ffd700, 0 0 60px #ffaa00; }
+  50% { text-shadow: 0 0 50px #ffd700, 0 0 100px #ffffff, 0 0 150px #ffd700; }
+}
+
+/* Buttons */
+.btn {
+  position: absolute;
+  padding: 16px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+  font-family: "Georgia", serif;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  color: #0f3d0f;
+  left: 40%;
+  top: 60%;
+  box-shadow: 0 0 25px rgba(255,215,0,0.8);
+}
+
+#no {
+  background: #444;
+  color: white;
+  left: 55%;
+  top: 60%;
+}
+
+/* Moon and stars */
+.moon {
+  position: absolute;
+  font-size: 60px;
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.star {
+  position: absolute;
+  font-size: 20px;
+  animation: twinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Lanterns */
+.lantern {
+  position: absolute;
+  font-size: 35px;
+  animation: sway 4s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+/* Popup bubbles */
+.popup {
+  position: absolute;
+  background: white;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+  animation: fade 1s forwards;
+  z-index: 100;
+}
+
+@keyframes fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Big message bubble */
+.bigMsg {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: "Georgia", serif;
+  color: #0f3d0f;
+  background: linear-gradient(135deg, #ffd700, #ffffff);
+  padding: 14px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,215,0,0.9);
+  animation: pop 0.3s;
+  z-index: 10;
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0); }
+  to { transform: translateX(-50%) scale(1); }
+}
+
+/* Result message */
+#eidMsg {
+  display: none;
+  font-size: 3rem;
+  color: #ffd700;
+  text-shadow: 0 0 30px #ffd700;
+}
+
+.moon-main {
+  font-size: 100px;
+  margin: 20px;
+  animation: glowMoon 2s ease-in-out infinite;
+}
+
+@keyframes glowMoon {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 20px #ffd700); }
+  50% { filter: brightness(1.3) drop-shadow(0 0 40px #ffd700); }
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="mainText">🌙 Eid Mubarak <span id="name"></span>! ✨</h1>
+
+<button id="yes" class="btn">Celebrate 🌙</button>
+<button id="no" class="btn">Pass 😤</button>
+
+<div id="eidMsg">
+  <div class="moon-main">🌙</div>
+  ✨ Blessings to <span id="name2"></span>! ✨
+</div>
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const msg = document.getElementById("eidMsg");
+const mainText = document.getElementById("mainText");
+
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get('name') || 'Friend';
+name = name.trim();
+document.getElementById('name').textContent = name;
+document.getElementById('name2').textContent = name;
+document.title = 'Eid Mubarak ' + name + ' 🌙';
+
+let attempts = 0, popupLock = false, escapeCooldown = false;
+
+const funnyTexts = [
+  "Nice try 😜", "Hehe can't catch me 😂", "Almosttt 🤭", "Too slow 😏",
+  "Press CELEBRATE 🌙", "Arey yaar 😂", "Stop chasing meee 😆", "Join the joy 🥺",
+  "Itna attitude? 😏", "Catch me if you can 🏃", "Wrong button buddy 😜",
+  "Pass option disabled 😂", "Destiny says EID 🌙", "Bas karo 😂",
+  "You really trying huh 🤭", "Team BLESSINGS only 😌", "Dil se bolo YES ✨",
+  "Arre arre arre 😆", "Celebrate only, no pass 😜", "System error ❌",
+  "Button not available 😂", "Try harder 😏", "You can't escape joy 🌙",
+  "Say celebrate warna… 😜", "Smart person chooses EID 😉", "LOL nice attempt 🤣",
+  "Mission failed 😂", "This button is shy 🙈", "Click CELEBRATE, be happy 🌙"
+];
+
+yesBtn.onclick = () => {
+  mainText.style.display = "none";
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+  msg.style.display = "block";
+  megaCelebration();
+};
+
+document.addEventListener("mousemove", (e) => {
+  if (escapeCooldown) return;
+  const rect = noBtn.getBoundingClientRect();
+  const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+  if (dist < 120) {
+    escapeCooldown = true;
+    attempts++;
+    moveNo();
+    showPopup(e.clientX, e.clientY);
+    if (attempts >= 5) { bigMessage("Missing the joy? 🌟"); attempts = 0; }
+    setTimeout(() => escapeCooldown = false, 350);
+  }
+});
+
+function moveNo() {
+  noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+  noBtn.style.top = Math.random() * (window.innerHeight - 70) + "px";
+}
+
+function showPopup(x, y) {
+  if (popupLock) return;
+  popupLock = true;
+  const p = document.createElement("div");
+  p.className = "popup";
+  p.innerText = funnyTexts[Math.floor(Math.random() * funnyTexts.length)];
+  p.style.left = x + "px";
+  p.style.top = y + "px";
+  document.body.appendChild(p);
+  setTimeout(() => { p.remove(); popupLock = false; }, 900);
+}
+
+function bigMessage(text) {
+  const b = document.createElement("div");
+  b.className = "bigMsg";
+  b.innerText = text;
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3000);
+}
+
+/* Floating moons */
+const moons = ['🌙', '🌛', '🌜', '☪️'];
+setInterval(() => {
+  const m = document.createElement('div');
+  m.className = 'moon';
+  m.textContent = moons[Math.floor(Math.random() * moons.length)];
+  m.style.left = Math.random() * 100 + 'vw';
+  m.style.top = (10 + Math.random() * 60) + '%';
+  m.style.animationDuration = (6 + Math.random() * 4) + 's';
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), 10000);
+}, 800);
+
+/* Stars */
+for (let i = 0; i < 40; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.textContent = '⭐';
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.top = Math.random() * 100 + 'vh';
+  s.style.animationDelay = Math.random() * 2 + 's';
+  document.body.appendChild(s);
+}
+
+/* Lanterns */
+setInterval(() => {
+  const l = document.createElement('div');
+  l.className = 'lantern';
+  l.textContent = '🏮';
+  l.style.left = Math.random() * 100 + 'vw';
+  l.style.bottom = '10%';
+  l.style.animationDuration = (4 + Math.random() * 2) + 's';
+  document.body.appendChild(l);
+  setTimeout(() => l.remove(), 8000);
+}, 2000);
+
+function megaCelebration() {
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const m = document.createElement('div');
+      m.className = 'moon';
+      m.textContent = moons[Math.floor(Math.random() * moons.length)];
+      m.style.left = 50 + (Math.random() - 0.5) * 40 + 'vw';
+      m.style.top = '20%';
+      m.style.fontSize = (30 + Math.random() * 30) + 'px';
+      m.style.animationDuration = '5s';
+      document.body.appendChild(m);
+      setTimeout(() => m.remove(), 5000);
+    }, i * 100);
+  }
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.textContent = '✨';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    document.body.appendChild(s);
+  }
+}
+</script>
+
+</body>
+</html>
