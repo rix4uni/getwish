@@ -125,6 +125,113 @@ h1{
 <div id="loveMsg">YAYYY <span id="name2"></span>!! I love you sooo much ❤️🥰</div>
 
 <script>
+/* Anti-Tampering Protection - Makes No Button Immortal */
+(function() {
+  'use strict';
+  
+  let mouseMoveHandler = null;
+  let protectionInterval = null;
+  let devToolsCheckInterval = null;
+  
+  // Prevent right click
+  document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 123) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); return false; }
+  });
+  
+  function immortalizeNoButton() {
+    const noBtn = document.getElementById('no');
+    if (!noBtn) return;
+    
+    Object.defineProperty(noBtn, 'disabled', {
+      get: function() { return false; },
+      set: function() { return false; },
+      configurable: false
+    });
+    
+    const originalDisplay = noBtn.style.display;
+    Object.defineProperty(noBtn.style, 'display', {
+      get: function() { return originalDisplay || 'block'; },
+      set: function(value) {
+        if (value === 'none') return;
+        originalDisplay = value;
+        return value;
+      },
+      configurable: false
+    });
+    
+    Object.defineProperty(noBtn.style, 'visibility', {
+      get: function() { return 'visible'; },
+      set: function() { return 'visible'; },
+      configurable: false
+    });
+    
+    Object.defineProperty(noBtn.style, 'opacity', {
+      get: function() { return '1'; },
+      set: function() { return '1'; },
+      configurable: false
+    });
+  }
+  
+  function protectEventListeners() {
+    const noBtn = document.getElementById('no');
+    if (!noBtn) return;
+    if (!document._protectedMouseMove) {
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document._protectedMouseMove = true;
+    }
+  }
+  
+  function detectDevTools() {
+    const threshold = 160;
+    const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+    const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+    if (widthThreshold || heightThreshold) {
+      alert('No cheating allowed! 😜\nPlease close Developer Tools!');
+      window.location.reload();
+    }
+  }
+  
+  const originalInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+  Object.defineProperty(Element.prototype, 'innerHTML', {
+    set: function(value) {
+      originalInnerHTML.set.call(this, value);
+      setTimeout(function() {
+        if (typeof immortalizeNoButton === 'function') immortalizeNoButton();
+      }, 0);
+    },
+    get: function() { return originalInnerHTML.get.call(this); },
+    configurable: false
+  });
+  
+  Object.defineProperty(document.body, 'innerHTML', {
+    set: function(value) { Element.prototype.innerHTML = value; },
+    get: function() { return document.body.innerHTML; },
+    configurable: false
+  });
+  
+  protectionInterval = setInterval(function() {
+    protectEventListeners();
+    const noBtn = document.getElementById('no');
+    if (noBtn) {
+      noBtn.style.display = 'block';
+      noBtn.disabled = false;
+      noBtn.style.visibility = 'visible';
+      noBtn.style.opacity = '1';
+    }
+  }, 50);
+  
+  devToolsCheckInterval = setInterval(detectDevTools, 1000);
+  window._immortalizeNoButton = immortalizeNoButton;
+  window._protectionInterval = protectionInterval;
+  window._devToolsCheckInterval = devToolsCheckInterval;
+})();
+
+let _mouseHandler = null;
+
 const yesBtn = document.getElementById("yes");
 const noBtn = document.getElementById("no");
 const msg = document.getElementById("loveMsg");
@@ -184,37 +291,33 @@ yesBtn.onclick = () => {
   noBtn.style.display="none";
   msg.style.display="block";
   confetti();
+  clearInterval(window._protectionInterval);
+  clearInterval(window._devToolsCheckInterval);
 };
 
 /* Chase detection */
-document.addEventListener("mousemove",(e)=>{
-
+_mouseHandler = function(e){
   if(escapeCooldown) return;
-
   const rect = noBtn.getBoundingClientRect();
-
   const dist = Math.hypot(
     e.clientX-(rect.left+rect.width/2),
     e.clientY-(rect.top+rect.height/2)
   );
-
   if(dist < 120){
-
     escapeCooldown = true;
-
     attempts++;
-
     moveNo();
     showPopup(e.clientX,e.clientY);
-
     if(attempts >= 5){
       bigMessage("Single rehna hai kya 😜");
       attempts = 0;
     }
-
     setTimeout(()=> escapeCooldown=false, 350);
   }
-});
+};
+
+document.addEventListener("mousemove", _mouseHandler);
+if (window._immortalizeNoButton) window._immortalizeNoButton();
 
 /* Move No button */
 function moveNo(){
